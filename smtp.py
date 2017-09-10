@@ -54,6 +54,7 @@ if xlsxfile_count > 2:
   print("*.xlsx(s) in the directory exceed two,can't recognize the salary_sum_file!!")
   print('''\
         ****************usage*************************
+        comments:please ensure without opened the slary_sum_file when this script is running
         parentdir
         |--any xlsx file(exclude template.xlsx,use as the salary_sum_file)
         |--template.xlsx
@@ -91,28 +92,27 @@ password   = 'njaixin@19781011'
 send_mail_count = 0
 
 
-name_col_pos  = 2
-email_col_pos = 22;
-#you should change the value src col --> dst col 
+name_col_pos          = 2
+src_finalPayingAmount_pos = 18 #src col
+dst_finalPayingAmount_pos = 16 #dst col
+src_remark_pos        = src_finalPayingAmount_pos + 2
+email_col_pos         = src_finalPayingAmount_pos + 4;
+
+'''
+init the copyCells with values: src col --> dst col
 copyCells = [
-            (2,1),
-            (4,2),
-            (5,3),
-            (6,4),
-            (7,5),#days
-            (8,6),
-            (9,7),
-            (10,8),
-            (11,9),
-            (12,10),
-            (13,11),
-            (14,12),
-            (15,13),
-            (16,14),
-            (17,15),
-            (18,16),
-            (20,17),#remarks
+            (2,1),#name
+            ...., #copy fields
+            (src_col,dst_col),#remarks
             ]
+'''
+#you should change the value src col --> dst col 
+copyCells = [(name_col_pos, 1)] # src name -> dst name 
+
+for dstcol in range(2, dst_finalPayingAmount_pos + 1): 
+  copyCells.append((2 + dstcol, dstcol))  # skip the src id col         
+
+copyCells.append((src_remark_pos, dstcol + 1 ))  #src remarks -> dst remarks     
 
 #salary_sheet_sum.max_row            
 for row in range(3,salary_sheet_sum.max_row):
@@ -137,8 +137,10 @@ for row in range(3,salary_sheet_sum.max_row):
   salary_book_sheet      = salary_book[salary_book_sheetnames[len(salary_book_sheetnames)-1]]
   #copy cell
   for copycelcfg in copyCells:
-    value = salary_sheet_sum_cell(row=row,column=copycelcfg[0]).value 
-  	#print(u'copy value:' + unicode(value))
+    header_col_name     = salary_sheet_sum_cell(row=2,column=copycelcfg[0]).value
+    value               = salary_sheet_sum_cell(row=row,column=copycelcfg[0]).value 
+    dst_header_col_name = salary_book_sheet.cell(row=1,column=copycelcfg[1]).value
+    #print(u'header name:' + header_col_name +  u',copy value:' + unicode(value) + u',src cell pos:' + unicode(copycelcfg[0]) + u',dst cell pos:' + unicode(copycelcfg[1])  + u',dst head col name:' + dst_header_col_name )
     if not value:
       continue
     salary_book_sheet.cell(row=2,column=copycelcfg[1]).value = value
@@ -151,6 +153,7 @@ for row in range(3,salary_sheet_sum.max_row):
   msgRoot['Subject'] = subject
   msgRoot['From']    = sender   #must field,maybe regard as spam
 
+  #receiver email addr
   email = salary_sheet_sum_cell(row=row,column=email_col_pos).value
   if not email :
     email = receiver
