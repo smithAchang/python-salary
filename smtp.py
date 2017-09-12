@@ -12,6 +12,7 @@ import string
 import os.path  
 import openpyxl
 import shutil
+from urllib import urlencode
 from openpyxl import load_workbook
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
@@ -171,7 +172,9 @@ for row in range(3,salary_sheet_sum.max_row):
   Encoders.encode_base64(att)
  
   
-  att["Content-Disposition"] = 'attachment; filename= %s'%Header(u'工资明细.xlsx','UTF-8')
+  #att["Content-Disposition"] = 'attachment; filename= %s'%Header(u'工资明细.xlsx','UTF-8')
+  att["Content-Disposition"] = u'attachment; filename=工资明细.xlsx'.encode('gbk')
+  
   #print('attachment:' + att["Content-Disposition"])
   msgRoot.attach(att)
   
