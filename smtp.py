@@ -71,33 +71,33 @@ filename                = salary_sum_file
 
 #data_only: controls whether cells with formulae have either the formula (default) 
 #or the value stored the last time Excel read the sheet   
-mybook        = load_workbook(filename,read_only=True,data_only=True)
-sheetnames    = mybook.get_sheet_names()
-lastsheetname = sheetnames[-1]
+mybook               = load_workbook(filename,read_only=True,data_only=True)
+sheetnames       = mybook.get_sheet_names()
+lastsheetname  = sheetnames[-1]
 #default salary month is the last one
 salary_sheet_sum      = mybook[lastsheetname]
 salary_sheet_sum_cell = salary_sheet_sum.cell
 
 
 #mail process
-charset    = 'gb2312'
-receiver   = 'changyunleitest@126.com'
-sender     = 'ai.dangmei@astute-tec.com'
+charset         = 'gb2312'
+receiver        = 'changyunleitest@126.com'
+sender          = 'ai.dangmei@astute-tec.com'
 smtpserver = 'smtp.mxhichina.com'
 
 #sender     = 'njaixin@163.com'
 #smtpserver = 'smtp.163.com'
 username   = sender
-password   = 'njaixin@19781011'
+password   = 'njaixin@china.com'
 
-send_mail_count = 0
+send_mail_count  =  0
 
 
-name_col_pos          = 2
+name_col_pos                             = 2
 src_finalPayingAmount_pos = 18 #src col
 dst_finalPayingAmount_pos = 16 #dst col
 src_remark_pos        = src_finalPayingAmount_pos + 2
-email_col_pos         = src_finalPayingAmount_pos + 4;
+email_col_pos           = src_finalPayingAmount_pos + 4;
 
 '''
 init the copyCells with values: src col --> dst col
@@ -115,7 +115,8 @@ for dstcol in range(2, dst_finalPayingAmount_pos + 1):
 
 copyCells.append((src_remark_pos, dstcol + 1 ))  #src remarks -> dst remarks     
 
-#salary_sheet_sum.max_row            
+#salary_sheet_sum.max_row  
+smtp = None          
 for row in range(3,salary_sheet_sum.max_row):
   if send_mail_count == 0:
     smtp          = smtplib.SMTP(smtpserver,25)
@@ -138,9 +139,10 @@ for row in range(3,salary_sheet_sum.max_row):
   salary_book_sheet      = salary_book[salary_book_sheetnames[len(salary_book_sheetnames)-1]]
   #copy cell
   for copycelcfg in copyCells:
-    header_col_name     = salary_sheet_sum_cell(row=2,column=copycelcfg[0]).value
-    value               = salary_sheet_sum_cell(row=row,column=copycelcfg[0]).value 
-    dst_header_col_name = salary_book_sheet.cell(row=1,column=copycelcfg[1]).value
+    
+    value                                        = salary_sheet_sum_cell(row=row,column=copycelcfg[0]).value 
+    #header_col_name           = salary_sheet_sum_cell(row=2,column=copycelcfg[0]).value
+    #dst_header_col_name  =  salary_book_sheet.cell(row=1,column=copycelcfg[1]).value
     #print(u'header name:' + header_col_name +  u',copy value:' + unicode(value) + u',src cell pos:' + unicode(copycelcfg[0]) + u',dst cell pos:' + unicode(copycelcfg[1])  + u',dst head col name:' + dst_header_col_name )
     if not value:
       continue
@@ -194,7 +196,7 @@ for row in range(3,salary_sheet_sum.max_row):
     time.sleep(random.randint(12,20))
 
 #finish operation
-if not smtp :
+if  smtp :
   smtp.quit()
 mybook.close()
 
