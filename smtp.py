@@ -86,7 +86,7 @@ smtpserver = 'smtp.mxhichina.com'
 #sender     = 'njaixin@163.com'
 #smtpserver = 'smtp.163.com'
 username   = sender
-password   = 'njaixin@19781011'
+password   = 'njaixin@china.com.cn'
 
 send_mail_count = 0
 
@@ -114,7 +114,8 @@ copyCells = [
             (20,17),#remarks
             ]
 
-#salary_sheet_sum.max_row            
+#salary_sheet_sum.max_row 
+smtp = None
 for row in range(3,salary_sheet_sum.max_row):
   if send_mail_count == 0:
     smtp          = smtplib.SMTP(smtpserver,25)
@@ -188,7 +189,7 @@ for row in range(3,salary_sheet_sum.max_row):
     time.sleep(random.randint(12,20))
 
 #finish operation
-if not smtp :
+if  smtp :
   smtp.quit()
 mybook.close()
 
