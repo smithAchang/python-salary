@@ -125,7 +125,7 @@ copyCells.append((src_remark_pos, dstcol + 1 ))  #src remarks -> dst remarks
 #init it to avoid exception when close
 smtp         = None          
 subject      = u'%d月份工资明细'%curmonth
-content      = u'感谢您为我司的辛勤奉献，您的%d月份工资明细•‿•'%curmonth
+content      = u'感谢您为公司的辛勤奉献，您的%d月份工资明细•‿•'%curmonth
 
 #salary_sheet_sum.max_row is last row, so must add '1' to include the lase item!!!
 for row in range(3, salary_sheet_sum.max_row + 1):
