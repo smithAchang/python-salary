@@ -66,38 +66,43 @@ if xlsxfile_count > 2:
 print("meet the request conditions(*.xlsx files:%d),to run...................."%xlsxfile_count)
 
 
-filename                = salary_sum_file
+filename                  = salary_sum_file
 
 
 #data_only: controls whether cells with formulae have either the formula (default) 
 #or the value stored the last time Excel read the sheet   
-mybook               = load_workbook(filename,read_only=True,data_only=True)
-sheetnames       = mybook.get_sheet_names()
-lastsheetname  = sheetnames[-1]
+mybook                    = load_workbook(filename,read_only=True,data_only=True)
+sheetnames                = mybook.get_sheet_names()
+lastsheetname             = sheetnames[-1]
 #default salary month is the last one
-salary_sheet_sum      = mybook[lastsheetname]
-salary_sheet_sum_cell = salary_sheet_sum.cell
+salary_sheet_sum          = mybook[lastsheetname]
+salary_sheet_sum_cell     = salary_sheet_sum.cell
 
 
 #mail process
-charset         = 'gb2312'
-receiver        = 'changyunleitest@126.com'
-sender          = 'ai.dangmei@astute-tec.com'
-smtpserver = 'smtp.mxhichina.com'
+charset                   = 'gb2312'
+receiver                  = 'changyunleitest@126.com'
+sender                    = 'ai.dangmei@astute-tec.com'
+smtpserver                = 'smtp.mxhichina.com'
 
-#sender     = 'njaixin@163.com'
-#smtpserver = 'smtp.163.com'
-username   = sender
-password   = 'njaixin@china.com'
+#sender                   = 'njaixin@163.com'
+#smtpserver               = 'smtp.163.com'
+username                  = sender
 
-send_mail_count  =  0
+#you must change the password for validity
+#password                  = 'programmer@china.com.cn'
+password                  = 'programmer@china.com.cn'
 
 
-name_col_pos                             = 2
+send_mail_count           =  0
+send_mail_sum             =  0
+
+
+name_col_pos              = 2
 src_finalPayingAmount_pos = 18 #src col
 dst_finalPayingAmount_pos = 16 #dst col
-src_remark_pos        = src_finalPayingAmount_pos + 2
-email_col_pos           = src_finalPayingAmount_pos + 4;
+src_remark_pos            = src_finalPayingAmount_pos + 2
+email_col_pos             = src_finalPayingAmount_pos + 4;
 
 '''
 init the copyCells with values: src col --> dst col
@@ -110,43 +115,57 @@ copyCells = [
 #you should change the value src col --> dst col 
 copyCells = [(name_col_pos, 1)] # src name -> dst name 
 
+
 for dstcol in range(2, dst_finalPayingAmount_pos + 1): 
   copyCells.append((2 + dstcol, dstcol))  # skip the src id col         
 
 copyCells.append((src_remark_pos, dstcol + 1 ))  #src remarks -> dst remarks     
 
-#salary_sheet_sum.max_row  
-smtp = None          
-for row in range(3,salary_sheet_sum.max_row):
+  
+#init it to avoid exception when close
+smtp         = None          
+subject      = u'%d月份工资明细'%curmonth
+content      = u'感谢您为我司的辛勤奉献，您的%d月份工资明细•‿•'%curmonth
+
+#salary_sheet_sum.max_row is last row, so must add '1' to include the lase item!!!
+for row in range(3, salary_sheet_sum.max_row + 1):
   if send_mail_count == 0:
     smtp          = smtplib.SMTP(smtpserver,25)
     smtp.login(username, password) 
+
   name            = salary_sheet_sum_cell(row=row,column=name_col_pos).value
   
   if not name:
   	print('meet the first empty name cell,reach the end of salary table.......')
   	break
 
-  subject         = u'工资明细'
-  salary_filename = name + u'.xlsx' 
-  #print(salary_filename)
+
+
+  
+  salary_filename        = name + u'.xlsx' 
+  
   salary_filename_full   = (salarymonthdir) + (os.sep) 
   salary_filename_full   = salary_filename_full+salary_filename
-  print(salary_filename_full)
+
+  #print("filename:" + salary_filename + ",full:" + salary_filename_full)
+
   shutil.copy(salarytemplate_filename,salary_filename_full)
   salary_book            = load_workbook(salary_filename_full)
   salary_book_sheetnames = salary_book.get_sheet_names()
   salary_book_sheet      = salary_book[salary_book_sheetnames[len(salary_book_sheetnames)-1]]
+  
   #copy cell
   for copycelcfg in copyCells:
     
-    value                                        = salary_sheet_sum_cell(row=row,column=copycelcfg[0]).value 
+    value                                        = salary_sheet_sum_cell(row=row, column=copycelcfg[0]).value 
     #header_col_name           = salary_sheet_sum_cell(row=2,column=copycelcfg[0]).value
-    #dst_header_col_name  =  salary_book_sheet.cell(row=1,column=copycelcfg[1]).value
+    #dst_header_col_name       =  salary_book_sheet.cell(row=1,column=copycelcfg[1]).value
     #print(u'header name:' + header_col_name +  u',copy value:' + unicode(value) + u',src cell pos:' + unicode(copycelcfg[0]) + u',dst cell pos:' + unicode(copycelcfg[1])  + u',dst head col name:' + dst_header_col_name )
     if not value:
       continue
+
     salary_book_sheet.cell(row=2,column=copycelcfg[1]).value = value
+
   #save everyone's salary book  
   salary_book.save(salary_filename_full)  	
   salary_book.close()  
@@ -157,13 +176,13 @@ for row in range(3,salary_sheet_sum.max_row):
   msgRoot['From']    = sender   #must field,maybe regard as spam
 
   #receiver email addr
-  email = salary_sheet_sum_cell(row=row,column=email_col_pos).value
+  email              = salary_sheet_sum_cell(row=row, column=email_col_pos).value
   if not email :
     email = receiver
   msgRoot['To']      = email
 
   #content
-  msText = MIMEText(u'您的工资明细•‿•',_subtype='plain',_charset='utf-8')
+  msText   = MIMEText(content, _subtype='plain', _charset='utf-8')
   msgRoot.attach(msText)
 
   #attachment
@@ -180,10 +199,10 @@ for row in range(3,salary_sheet_sum.max_row):
   #print('attachment:' + att["Content-Disposition"])
   msgRoot.attach(att)
   
- 
-  print('send mail to:' + email + ',from:' + sender)  
+  send_mail_sum += 1
+  print('send mail to:' + name + "; To:" + email + ',No:%d'%send_mail_sum)  
   smtp.sendmail(sender, email, msgRoot.as_string())
-  #avoid to be recoginized as spam
+  #avoid to be recoginized as spam by email server
   time.sleep(random.randint(1,3))
   send_mail_count = send_mail_count + 1
 
@@ -191,14 +210,16 @@ for row in range(3,salary_sheet_sum.max_row):
   if send_mail_count >= 9:
     smtp.quit()
     send_mail_count = 0
-    smtp = None
-    print('sleep to next send mail loop')
+    smtp            = None
+    print('sleep,will begin the next send mail loop.Please wait...')
     time.sleep(random.randint(12,20))
 
 #finish operation
-if  smtp :
+if smtp :
   smtp.quit()
+
 mybook.close()
+print('send salary emails ends!')
 
 
 
