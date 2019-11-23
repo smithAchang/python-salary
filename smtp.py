@@ -212,7 +212,7 @@ for row in range(3, salary_sheet_sum.max_row + 1):
     send_mail_count = 0
     smtp            = None
     print('sleep,will begin the next send mail loop.Please wait...')
-    time.sleep(random.randint(12,20))
+    time.sleep(random.randint(12,60))
 
 #finish operation
 if smtp :
