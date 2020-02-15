@@ -27,11 +27,13 @@ from email import Utils, Encoders
 now         =  datetime.datetime.now()
 curmonth    = int(now.strftime('%m'))  
 salarymonth = curmonth - 1
+if salarymonth == 0:
+  salarymonth = 12
 
 #excel process
 curdir         = os.getcwd().decode('utf-8')
 print('curdir:' + curdir)
-salarymonthdir = curdir + os.sep  + "salarys" + os.sep + str(curmonth)
+salarymonthdir = curdir + os.sep  + "salarys" + os.sep + str(salarymonth)
 
 #clear files
 if os.path.exists(salarymonthdir):
@@ -124,8 +126,8 @@ copyCells.append((src_remark_pos, dstcol + 1 ))  #src remarks -> dst remarks
   
 #init it to avoid exception when close
 smtp         = None          
-subject      = u'%d月份工资明细'%curmonth
-content      = u'感谢您为公司的辛勤奉献，您的%d月份工资明细•‿•'%curmonth
+subject      = u'%d月份工资明细'%salarymonth
+content      = u'感谢您的辛勤奉献，您的%d月份工资明细•‿•'%salarymonth
 
 #salary_sheet_sum.max_row is last row, so must add '1' to include the lase item!!!
 for row in range(3, salary_sheet_sum.max_row + 1):
@@ -178,7 +180,8 @@ for row in range(3, salary_sheet_sum.max_row + 1):
   #receiver email addr
   email              = salary_sheet_sum_cell(row=row, column=email_col_pos).value
   if not email :
-    email = receiver
+    print('no email address configed')
+    continue
   msgRoot['To']      = email
 
   #content
