@@ -36,7 +36,7 @@ salarymonth = (curmonth - 1) if (curmonth - 1) > 0 else 12
 
 # input the special month
 while True:
-    inputMonthStr = input("Enter the month (1 - 12) to send mails; Or 'enter' key for the current month: %d : "%curmonth)
+    inputMonthStr = raw_input("Enter the month (1 - 12) to send mails; Or 'enter' key for the current month: %d : "%curmonth)
     try:
         inputMonth = int(inputMonthStr)
     except Exception as e:
@@ -44,24 +44,22 @@ while True:
         break
     
     if inputMonth < 1 or inputMonth > 12 :
-        break
+        continue
     
     inputMonth = (inputMonth - 1) if (inputMonth - 1) > 0 else 12
         
-    keys = input("Are you sure the salary month: %d (y/n; Or 'enter' key for OK)? "%inputMonth)
+    keys = raw_input("Are you sure the salary month: %d (y/n; Or 'enter' key for OK)? "%inputMonth)
 
     if len(keys) == 0 or (keys[0] != 'n' and keys[0] != 'N'):
         salarymonth = inputMonth
         break
-  
-print("Will send mails for the salary month: %d ..."%salarymonth)
 
 #excel process
 curdir         = os.getcwd().decode('utf-8')
-print('curdir:' + curdir)
-salarymonthdir = curdir + os.sep  + "salarys" + os.sep + str(salarymonth)
+print("Will send mails for the salary month: %d at dir %s ..."%(salarymonth, curdir))
 
 #clear files
+salarymonthdir = curdir + os.sep  + "salarys" + os.sep + str(salarymonth)
 if os.path.exists(salarymonthdir):
  shutil.rmtree(salarymonthdir)
 os.makedirs(salarymonthdir)
