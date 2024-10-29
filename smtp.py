@@ -29,11 +29,10 @@ from email import Utils, Encoders
 
 
 #datetime calc
-now         =  datetime.datetime.now()
+now         = datetime.datetime.now()
 curmonth    = int(now.strftime('%m'))  
-salarymonth = curmonth - 1
-if salarymonth == 0:
-  salarymonth = 12
+salarymonth = (curmonth - 1) if (curmonth - 1) > 0 else 12
+
 
 # input the special month
 while True:
@@ -47,9 +46,7 @@ while True:
     if inputMonth < 1 or inputMonth > 12 :
         break
     
-    inputMonth = inputMonth - 1
-    if inputMonth == 0:
-        inputMonth = 12
+    inputMonth = (inputMonth - 1) if (inputMonth - 1) > 0 else 12
         
     keys = input("Are you sure the salary month: %d (y/n; Or 'enter' key for OK)? "%inputMonth)
 
