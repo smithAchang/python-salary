@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+
 import smtplib
 import os  
 import sys
@@ -21,6 +22,10 @@ from email.MIMEBase import MIMEBase
 from email.header import Header
 from email import Utils, Encoders
 
+'''
+  Send salary mail autoly
+'''
+
 
 
 #datetime calc
@@ -29,6 +34,30 @@ curmonth    = int(now.strftime('%m'))
 salarymonth = curmonth - 1
 if salarymonth == 0:
   salarymonth = 12
+
+# input the special month
+while True:
+    inputMonthStr = input("Enter the month (1 - 12) to send mails; Or 'enter' key for the current month: %d : "%curmonth)
+    try:
+        inputMonth = int(inputMonthStr)
+    except Exception as e:
+        #print("Error input:%s"%inputMonthStr, e)
+        break
+    
+    if inputMonth < 1 or inputMonth > 12 :
+        break
+    
+    inputMonth = inputMonth - 1
+    if inputMonth == 0:
+        inputMonth = 12
+        
+    keys = input("Are you sure the salary month: %d (y/n; Or 'enter' key for OK)? "%inputMonth)
+
+    if len(keys) == 0 or (keys[0] != 'n' and keys[0] != 'N'):
+        salarymonth = inputMonth
+        break
+  
+print("Will send mails for the salary month: %d ..."%salarymonth)
 
 #excel process
 curdir         = os.getcwd().decode('utf-8')
